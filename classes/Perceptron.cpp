@@ -10,15 +10,15 @@ Perceptron::Perceptron(int in_dim, int_vector nodes)
 {
     this->layers_n = nodes.size();
     this->in_dim = in_dim;
-    auto new_mat = new matrix<double>(nodes[0], in_dim+1)
+    auto new_mat = new mat(nodes[0], in_dim+1);
     for (int i = 0; i < nodes[0]; i++){
         for (int j = 0; j < in_dim+1; j++){
             (*new_mat)(i,j) = (double)rand()/RAND_MAX;
         }
     }
     layers.push_back(new_mat);
-    for (int i = 1; i < n; ++i){
-        new_mat = new matrix<double>(nodes[i], nodes[i-1]+1);
+    for (int i = 1; i < layers_n; ++i){
+        new_mat = new mat(nodes[i], nodes[i-1]+1);
         for (int i = 0; i < nodes[i]; i++){
             for (int j = 0; j < nodes[i-1]+1; j++){
                (*new_mat)(i,j) = (double)rand()/RAND_MAX;
@@ -30,19 +30,15 @@ Perceptron::Perceptron(int in_dim, int_vector nodes)
 
 vec Perceptron::forward(vec input){
     if(input.size() != this->in_dim){
-        printf("Tamaño de input incorrecto.")
-        return;
+        throw "Tamaño de input incorrecto.";
     }
-    vec *output;
-    *output = input;
+    vec output = input;
     for(auto layer:this->layers){
-        *output += 1;
-        *output = prod(layer, *output);
-        
-         BOOST_FOREACH( auto v, *output ){
-            std::cout << v << ' ';
-        }
-        cout << '\n';
+        auto size = output.size();
+        output.resize(size+1);
+        output.insert_element(size, 1);
+        // std::cout<<output<<'\n'<<*layer<<'\n';
+        output = prod(*layer, output);
     }
-    return *output;
+    return output;
 }

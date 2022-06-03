@@ -1,6 +1,7 @@
 #include "../includes.hpp"
-#include <boost/numeric/ublas/matrix.hpp>
-#include"Layer.hpp"
+
+#ifndef PERCEPTRON_H
+#define PERCEPTRON_H
 
 class Perceptron{
     private:
@@ -13,3 +14,5 @@ class Perceptron{
 
         vec forward(vec input);
 };
+
+#endif 
