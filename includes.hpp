@@ -1,5 +1,8 @@
 #include <vector>
 #include <random>
+#include <cmath>
+#include <fstream>
+#include <sstream>
 #include <boost/assign/std/vector.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
