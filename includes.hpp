@@ -15,6 +15,7 @@ using namespace std;
 # define int_vector std::vector<int>
 # define mat boost::numeric::ublas::matrix<double>
 # define vec boost::numeric::ublas::vector<double>
+# define db double
 // using std::vector<int> = int_vector;
 // using boost::numeric::ublas::matrix<double> = mat;
 // using boost::numeric::ublas::vector<double> = vec;
