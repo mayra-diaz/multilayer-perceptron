@@ -37,7 +37,7 @@ Perceptron::Perceptron(int in_dim, int_vector nodes, char _activation_func)
     }
 }
 
-vec Perceptron::activation_function(vec input, bool last){
+vec Perceptron::activation_function(vec input, bool last=false){
     vec output(input.size());
     if(last || activation_func_type == 's'){
         for(int i = 0; i < input.size(); i++) output[i] = 1/(1 + exp(-input[i]));
@@ -49,7 +49,7 @@ vec Perceptron::activation_function(vec input, bool last){
     return output;
 }
 
-int Perceptron::activation_function_derivative(vec input, bool last){ 
+int Perceptron::activation_function_derivative(vec input, bool last=false){ 
     int output = 0;
     if(last || activation_func_type == 's'){
         for(int i = 0; i < input.size(); i++) output += input[i]*(1-input[i]);
@@ -62,10 +62,10 @@ int Perceptron::activation_function_derivative(vec input, bool last){
 }
 
 
-vec Perceptron::derivates(int j, bool last){
+vec Perceptron::derivates(int j, bool last=false){
     vec output(*(layers_linear[j]).size());
     for(int i = 0; i < *(layers_linear[j]).size(); i++) output[i] = activation_function_derivative(layers_linear[i], last);
-    return prod(trans(*(layers[j])), b[j]) * output;
+    return prod(trans(*(layers[j+1])), biases[j+1]) * output;
 }
 
 vec Perceptron::forward(vec input)
@@ -88,15 +88,16 @@ vec Perceptron::forward(vec input)
     return output;
 }
 
-vec Perceptron::backward(vec input, double alpha)
+vec Perceptron::backward(vec input, vec y, double alpha)
 {
     std::vector<double> derivatives;
     vec<mat*> w = new mat(*(layers[0]), layers.size());
     
-
+    biases[-1] = (layers_outputs[-1]-y)*activation_function_derivative(layers_linear[-1], true);
+    *(w[-1]) = trans(prod(biases[-1], layers_output[-2]));
     for (int i = layers.size()-2; i >= 0; --i)
     {
-        b[i] = derivatives(i);
-        *(w[i]) = prod(b[i], trans(layers_outputs[i - 1]));
+        biases[i] = derivatives(i);
+        *(w[i]) = prod(biases[i], trans(layers_outputs[i - 1]));
     }
 }
