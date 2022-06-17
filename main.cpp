@@ -4,13 +4,9 @@
 // size1 = #filas y size2 = #columnas
 int main(){
     auto df = parse_csv("butterflies96d.csv", 96);
-    // std::cout<<df.X<<'\n';
+    df.separation();
+    // std::cout<<df.Y_train<<'\n';
     auto mlp = Perceptron({3, 2, 4, 5}, 'r');
-    int n = 2, m = 3;
-    mat input(n, m);
-    auto result = mlp.forward(input);
-    // cout << max(aux.data()) << endl;
+    // mlp.train(df.X_train, df.Y_train, df.X_val, df.Y_val, 0.01, 10);
 
-    // cout << input.size1() << endl;
-    // std::cout<<result<<'\n';
 }

@@ -1,8 +1,14 @@
 #include "csvparser.hpp"
 
 DataFrame::DataFrame(int num, int car){
-    this->X = mat(num,car);
+    this->X = mat(num, car);
+    this->X_train = mat((int)(num*0.8), car);
+    this->X_val = mat((int)(num*0.1), car);
+    this->X_test = mat((int)(num*0.1), car);
     this->Y = vec(num);
+    this->Y_train = vec((int)(num*0.8));
+    this->Y_val = vec((int)(num*0.1));
+    this->Y_test = vec((int)(num*0.1));
 }
 
 DataFrame parse_csv(std::string filename, int dim){

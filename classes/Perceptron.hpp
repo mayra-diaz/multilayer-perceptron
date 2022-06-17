@@ -201,6 +201,21 @@ class Perceptron{
             }
             return input;
         }
+
+        void train(mat x_train, mat y_train, mat x_val, mat y_val, double alpha, double epochs)
+        {
+            while (epochs--)
+            {
+                forward(x_train);
+                forward(x_val);
+                backward(x_train, y_train, alpha);
+            }
+        }
+
+        void test(mat x_test, mat y_test)
+        {
+            forward(x_test);
+        }
 };
 
 #endif 
