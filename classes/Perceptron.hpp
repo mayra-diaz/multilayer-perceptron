@@ -158,7 +158,14 @@ class Perceptron{
         {
             FOR(i, 0, sz(weights))
             {
-                input = prod(input, weights[i]);//+biases[i];
+                input = prod(input, weights[i]);
+                FOR(j, 0, input.size1())
+                {
+                    FOR(k, 0, input.size2())
+                    {
+                        input(j, k) = input(j, k) + biases[i](j);
+                    }
+                }
                 input = activation_function(input, i == sz(weights)-1);
                 layers_outputs.push_back(input);
             }
@@ -169,7 +176,7 @@ class Perceptron{
         {
             deltas.back() = layers_outputs.back() - y;
             // int sum = deltas.back();
-            weights_prime.back() = prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-1]);
+            weights_prime.back() = prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]);
             ROF(i, sz(weights)-1, 0)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
@@ -180,7 +187,17 @@ class Perceptron{
             FOR(i, 0, sz(weights))
             {
                 weights[i] = weights[i]-trans(weights_prime[i])*alpha;
-                // biases[i] = biases[i]-sum*alpha;
+                vec aux(deltas[i].size2());
+                FOR(j, 0, deltas[i].size2())
+                {
+                    double sum = 0;
+                    FOR(k, 0, deltas[i].size1())
+                    {
+                        sum += deltas[i](k, j);
+                    }   
+                    aux(j) = sum;
+                }
+                biases[i] = biases[i]-aux*alpha;
             }
             return input;
         }
