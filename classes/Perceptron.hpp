@@ -3,17 +3,14 @@
 #ifndef PERCEPTRON_H
 #define PERCEPTRON_H
 
-template<typename T>
-bool greatest_element(T a, T b)
-{
-    return a < b;
-}
 
 class Perceptron{
     private:
         int n_layers;
         char activation_func_type = 'r';     // r = ReLU, s = Sigmoid, t = Tanh
         std::vector<mat> weights;
+        std::vector<mat> weights_prime;
+        std::vector<mat> deltas;
         std::vector<mat> layers_outputs;
         std::vector<vec> biases;
 
@@ -60,7 +57,7 @@ class Perceptron{
                 }
             } 
             // tanh
-            else 
+            else if (activation_func_type == 't')
             {
                 FOR (i, 0, input.size1())
                 {
@@ -71,8 +68,47 @@ class Perceptron{
                 }  
             }
             return input;
-        }
-        mat activation_function_derivative(mat input, int pos);
+        };
+        mat activation_function_derivative(mat input)
+        {
+            // sigmoid
+            if (activation_func_type == 's')
+            {
+                FOR (i, 0, input.size1())
+                {
+                    FOR (j, 0, input.size2())
+                    {
+                        // sigm(x) * (1 - sigm(x))
+                        input(i, j) = (1/(1 + exp(-input(i, j)))) * (1 - (1/(1 + exp(-input(i, j)))));
+                    }
+                }
+            } 
+            // relu
+            else if (activation_func_type == 'r')
+            {
+                FOR (i, 0, input.size1())
+                {
+                    FOR (j, 0, input.size2())
+                    {
+                        // f(x) {x > 0 -> 1, x < 0 -> 0}
+                        input(i, j) = input(i, j) > 0 ? 1 : 0;
+                    }
+                }
+            } 
+            // tanh
+            else if (activation_func_type == 't')
+            {
+                FOR (i, 0, input.size1())
+                {
+                    FOR (j, 0, input.size2())
+                    {
+                        // 1-tanh(x)^2
+                        input(i, j) = 1 - pow((exp(input(i, j)) - exp(-input(i, j)))/(exp(input(i, j)) + exp(-input(i, j))), 2);   
+                    }                    
+                }  
+            }
+            return input;
+        };
 
         vec loss_derivative(vec input, bool last);
 
@@ -97,6 +133,9 @@ class Perceptron{
                     }
                 }
                 weights.push_back(aux2);
+                zero_matrix<double> aux3(nodes[i], nodes[i+1]);
+                weights_prime.push_back(aux3);
+                deltas.push_back(aux3);
             }
 
             // DEBUG
@@ -117,24 +156,32 @@ class Perceptron{
 
         mat forward(mat input)
         {
-            FOR(i, 0, weights.size())
+            FOR(i, 0, sz(weights))
             {
-                input = prod(input, weights[i]);
-                // size1 = #filas y size2 = #columnas
-                FOR(j, 0, weights[i].size1())
-                {
-                    input(i, j) = input(i, j) + biases[i](j);
-
-                }
-                input = activation_function(input, i == weights.size());
+                input = prod(input, weights[i]);//+biases[i];
+                input = activation_function(input, i == sz(weights)-1);
                 layers_outputs.push_back(input);
             }
             return input;
         }
 
-        mat backward(mat input, mat y)
+        mat backward(mat input, mat y, double alpha)
         {
-            // mat last = layers_outputs(n_layers) - y;
+            deltas.back() = layers_outputs.back() - y;
+            // int sum = deltas.back();
+            weights_prime.back() = prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-1]);
+            ROF(i, sz(weights)-1, 0)
+            {
+                deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
+                                         activation_function_derivative(layers_outputs[i]));
+                weights_prime[i] = prod(trans(deltas[i]), input);
+                // sum += deltas[i];
+            }
+            FOR(i, 0, sz(weights))
+            {
+                weights[i] = weights[i]-trans(weights_prime[i])*alpha;
+                // biases[i] = biases[i]-sum*alpha;
+            }
             return input;
         }
 };
