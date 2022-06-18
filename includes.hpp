@@ -17,6 +17,7 @@ using namespace std;
 # define int_vector std::vector<int>
 # define mat boost::numeric::ublas::matrix<double>
 # define vec boost::numeric::ublas::vector<double>
+# define b_vec_int boost::numeric::ublas::vector<int>
 # define db double
 #define FOR(i,a,b) for (int (i) = (a); (i) < (b); ++(i))
 #define ROF(i,a,b) for (int (i) = (b)-1; (i) >= (a); --(i))

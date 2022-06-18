@@ -5,8 +5,8 @@
 int main(){
     auto df = parse_csv("butterflies96d.csv", 96);
     df.separation();
-    // std::cout<<df.Y_train<<'\n';
-    auto mlp = Perceptron({3, 2, 4, 5}, 'r');
-    // mlp.train(df.X_train, df.Y_train, df.X_val, df.Y_val, 0.01, 10);
+    auto mlp = Perceptron({96, 60, 40, 10}, 's');
+    mlp.train(df.X_train, df.Y_train, df.X_val, df.Y_val, 0.01, 10);
+    mlp.test(df.X_test, df.Y_test);
 
 }

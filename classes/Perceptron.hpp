@@ -158,63 +158,72 @@ class Perceptron{
         {
             FOR(i, 0, sz(weights))
             {
+                // cout << input.size1() << "x" << input.size2() << " " << weights[i].size1() << "x" << weights[i].size2() << endl;
                 input = prod(input, weights[i]);
-                FOR(j, 0, input.size1())
-                {
-                    FOR(k, 0, input.size2())
-                    {
-                        input(j, k) = input(j, k) + biases[i](j);
-                    }
-                }
+                // cout << input.size2() << " " << biases[i].size() << endl;
+                /* TODO: DA ERROR AL SUMAR EL BIAS, CORREGIR */ 
+                // FOR(j, 0, input.size1())
+                // {
+                //     FOR(k, 0, input.size2())
+                //     {
+                //         input(j, k) = input(j, k) + biases[i](j);
+                //     }
+                // }
                 input = activation_function(input, i == sz(weights)-1);
                 layers_outputs.push_back(input);
             }
             return input;
         }
 
-        mat backward(mat input, mat y, double alpha)
+        mat backward(mat input, b_vec_int y, double alpha)
         {
-            deltas.back() = layers_outputs.back() - y;
-            // int sum = deltas.back();
-            weights_prime.back() = prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]);
+            // deltas.back() = layers_outputs.back() - y;
+            /* TODO: CONVERTIR y a matriz para poder restar */ 
+            deltas.back() = layers_outputs.back();
+            weights_prime.back() = trans(prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
             ROF(i, sz(weights)-1, 0)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
                                          activation_function_derivative(layers_outputs[i]));
                 weights_prime[i] = prod(trans(deltas[i]), input);
-                // sum += deltas[i];
             }
             FOR(i, 0, sz(weights))
             {
-                weights[i] = weights[i]-trans(weights_prime[i])*alpha;
-                vec aux(deltas[i].size2());
-                FOR(j, 0, deltas[i].size2())
-                {
-                    double sum = 0;
-                    FOR(k, 0, deltas[i].size1())
-                    {
-                        sum += deltas[i](k, j);
-                    }   
-                    aux(j) = sum;
-                }
-                biases[i] = biases[i]-aux*alpha;
+                // cout << weights[i].size1() << "x" << weights[i].size2() <<
+                //         " " << weights_prime[i].size1() << "x" << weights_prime[i].size2() << endl;
+                weights[i] = weights[i]-(weights_prime[i])*alpha;
+                /* TODO: FIXEAR ERROR CON DIMENSIONES */ 
+                // vec aux(deltas[i].size2());
+                // FOR(j, 0, deltas[i].size2())
+                // {
+                //     double sum = 0;
+                //     FOR(k, 0, deltas[i].size1())
+                //     {
+                //         sum += deltas[i](k, j);
+                //     }   
+                //     aux(j) = sum;
+                // }
+                // biases[i] = biases[i]-aux*alpha;
             }
             return input;
         }
 
-        void train(mat x_train, mat y_train, mat x_val, mat y_val, double alpha, double epochs)
+        void train(mat x_train, b_vec_int y_train, mat x_val, b_vec_int y_val, double alpha, double epochs)
         {
-            while (epochs--)
+            FOR(epoch, 1, epochs+1)
             {
+                cout << epoch << endl;
                 forward(x_train);
                 forward(x_val);
                 backward(x_train, y_train, alpha);
             }
         }
 
-        void test(mat x_test, mat y_test)
+        void test(mat x_test, b_vec_int y_test)
         {
-            forward(x_test);
+            auto res = forward(x_test);
+            /* RESULTADO TODO -nan con tanh y relu, con sigmoid da resultados! */ 
+            cout << res << endl;
         }
 };
 

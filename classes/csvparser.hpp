@@ -5,38 +5,41 @@
 
 struct DataFrame{
     mat X;
-    vec Y;
+    b_vec_int Y;
 
     mat X_train;
     mat X_val;
     mat X_test;
 
-    vec Y_train;
-    vec Y_val;
-    vec Y_test;
+    b_vec_int Y_train;
+    b_vec_int Y_val;
+    b_vec_int Y_test;
 
     DataFrame(int num, int car);
     
     // TODO: que la separación sea RANDOM
     void separation()
     {
+        b_vec_int index(Y.size());
+        FOR(i, 0, Y.size()) index(i) = i;
+        random_shuffle(index.begin(), index.end());
         int train = Y.size()*0.8;
         FOR(i, 0, train)
         {
-            Y_train(i) = Y(i);
-            X_train(i) = X(i);
+            Y_train(i) = Y(index(i));
+            X_train(i) = X(index(i));
         }
         int val = Y.size()*0.1;
         FOR(i, train, train+val)
         {
-            Y_val(i-train) = Y(i);
-            X_val(i-train) = X(i-train);
+            Y_val(i-train) = Y(index(i));
+            X_val(i-train) = X(index(i));
         }
         int test = Y.size()*0.1;
         FOR(i, train+val, train+val+test)
         {
-            Y_test(i-train-val) = Y(i);
-            X_test(i-train-val) = X(i-train-val);
+            Y_test(i-train-val) = Y(index(i));
+            X_test(i-train-val) = X(index(i));
         }
     }
 };
