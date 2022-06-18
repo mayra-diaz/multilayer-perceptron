@@ -122,6 +122,7 @@ class Perceptron{
         {
             this->n_layers = nodes.size();
             this->activation_func_type = _activation_func;
+            this->layers_outputs = std::vector<mat>(n_layers-2);
             
             FOR(i, 0, n_layers-1)
             {
@@ -173,15 +174,23 @@ class Perceptron{
                 //     }
                 // }
                 input = activation_function(input, i == sz(weights)-1);
-                layers_outputs.push_back(input);
+                // cout << input.size1() << "x" << input.size2() << endl;
+                layers_outputs[i] = (input);
             }
             return input;
         }
 
         mat backward(mat input, b_vec_int y, double alpha)
         {
-            // deltas.back() = layers_outputs.back() - y;
+            // FOR(j, 0, layers_outputs[0].size2())
+            // {
+            //     FOR(i, 0, layers_outputs[0].size1())
+            //     {
+            //         layers_outputs
+            //     }
+            // }
             /* TODO: CONVERTIR y a matriz para poder restar */ 
+            // cout << layers_outputs.size() << endl;
             deltas.back() = layers_outputs.back();
             weights_prime.back() = trans(prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
             ROF(i, sz(weights)-1, 0)
@@ -216,6 +225,7 @@ class Perceptron{
             FOR(epoch, 1, epochs+1)
             {
                 cout << epoch << endl;
+                // cout << layers_outputs.size() << endl;
                 forward(x_train);
                 forward(x_val);
                 backward(x_train, y_train, alpha);
@@ -225,7 +235,6 @@ class Perceptron{
         void test(mat x_test, b_vec_int y_test)
         {
             auto res = forward(x_test);
-            /* RESULTADO TODO -nan con tanh y relu, con sigmoid da resultados! */ 
             cout << res << endl;
         }
 };
