@@ -27,20 +27,25 @@ struct DataFrame{
         FOR(i, 0, train)
         {
             Y_train(i) = Y(index(i));
-            X_train(i) = X(index(i));
+            FOR(j, 0, X.size2())
+                X_train(i,j) = X(index(i),j);
         }
         int val = Y.size()*0.1;
         FOR(i, train, train+val)
         {
             Y_val(i-train) = Y(index(i));
-            X_val(i-train) = X(index(i));
+            FOR(j, 0, X.size2())
+                X_val(i-train,j) = X(index(i),j);
         }
         int test = Y.size()*0.1;
         FOR(i, train+val, train+val+test)
         {
             Y_test(i-train-val) = Y(index(i));
-            X_test(i-train-val) = X(index(i));
+            FOR(j, 0, X.size2())
+                X_test(i-train-val,j) = X(index(i),j);
         }
+        // cout<<X_test<<'\n';
+        // exit(0);
     }
 };
 

@@ -20,9 +20,10 @@ class Perceptron{
             // softmax
             if (last)
             {
+                // cout<<input<<'\n';
                 FOR (i, 0, input.size1())
                 {
-                    double max = -1, sum = 0;
+                    double max = -1, sum = 1;
                     FOR (j, 0, input.size2())
                     {
                         if (input(i, j) > max) max = input(i, j);
@@ -33,6 +34,8 @@ class Perceptron{
                         input(i, j) = exp(input(i, j) - max) / sum;
                     }
                 }
+                // cout<<input<<'\n';
+                // exit(0);
             }
             // sigmoid
             else if (activation_func_type == 's')
@@ -156,17 +159,19 @@ class Perceptron{
 
         mat forward(mat input)
         {
-            FOR(i, 0, sz(weights)-1)
+            FOR(i, 0, sz(weights))
             {
                 // cout << input.size1() << "x" << input.size2() << " " << weights[i].size1() << "x" << weights[i].size2() << endl;
                 input = prod(input, weights[i]);
-                FOR(j, 0, input.size1())
-                {
-                    FOR(k, 0, input.size2())
-                    {
-                        input(j, k) = input(j, k) + biases[i+1](k);
-                    }
-                }
+                // cout << input.size2() << " " << biases[i].size() << endl;
+                /* TODO: DA ERROR AL SUMAR EL BIAS, CORREGIR */ 
+                // FOR(j, 0, input.size1())
+                // {
+                //     FOR(k, 0, input.size2())
+                //     {
+                //         input(j, k) = input(j, k) + biases[i](j);
+                //     }
+                // }
                 input = activation_function(input, i == sz(weights)-1);
                 layers_outputs.push_back(input);
             }
@@ -178,33 +183,30 @@ class Perceptron{
             // deltas.back() = layers_outputs.back() - y;
             /* TODO: CONVERTIR y a matriz para poder restar */ 
             deltas.back() = layers_outputs.back();
-            // cout << "A\n";
-            weights_prime.back() = (prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
-            // cout << "A\n";
+            weights_prime.back() = trans(prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
             ROF(i, sz(weights)-1, 0)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
                                          activation_function_derivative(layers_outputs[i]));
                 weights_prime[i] = prod(trans(deltas[i]), input);
             }
-            // cout << "A\n";
-            FOR(i, 0, sz(weights)-1)
+            FOR(i, 0, sz(weights))
             {
                 // cout << weights[i].size1() << "x" << weights[i].size2() <<
                 //         " " << weights_prime[i].size1() << "x" << weights_prime[i].size2() << endl;
                 weights[i] = weights[i]-(weights_prime[i])*alpha;
                 /* TODO: FIXEAR ERROR CON DIMENSIONES */ 
-                vec aux(deltas[i].size2());
-                FOR(j, 0, deltas[i].size2())
-                {
-                    double sum = 0;
-                    FOR(k, 0, deltas[i].size1())
-                    {
-                        sum += deltas[i](k, j);
-                    }   
-                    aux(j) = sum;
-                }
-                biases[i+1] = biases[i+1]-aux*alpha;
+                // vec aux(deltas[i].size2());
+                // FOR(j, 0, deltas[i].size2())
+                // {
+                //     double sum = 0;
+                //     FOR(k, 0, deltas[i].size1())
+                //     {
+                //         sum += deltas[i](k, j);
+                //     }   
+                //     aux(j) = sum;
+                // }
+                // biases[i] = biases[i]-aux*alpha;
             }
             return input;
         }
@@ -215,9 +217,7 @@ class Perceptron{
             {
                 cout << epoch << endl;
                 forward(x_train);
-                // cout << "-----------------------------------\n";
                 forward(x_val);
-                // cout << "-----------------------------------\n";
                 backward(x_train, y_train, alpha);
             }
         }
