@@ -21,21 +21,31 @@ class Perceptron{
             if (last)
             {
                 // cout<<input<<'\n';
-                FOR (i, 0, input.size1())
+                // FOR (i, 0, input.size1())
+                // {
+                //     double max = -1, sum = 1;
+                //     FOR (j, 0, input.size2())
+                //     {
+                //         if (input(i, j) > max) max = input(i, j);
+                //         sum += input(i, j);
+                //     }
+                //     FOR (j, 0, input.size2())
+                //     {
+                //         input(i, j) = exp(input(i, j) - max) / sum;
+                //     }
+                // }
+                double sum = 0;
+                FOR(i, 0, input.size1())
                 {
-                    double max = -1, sum = 1;
-                    FOR (j, 0, input.size2())
+                    FOR(j, 0, input.size2())
                     {
-                        if (input(i, j) > max) max = input(i, j);
-                        sum += input(i, j);
+                        sum += exp(input(i,j));
                     }
-                    FOR (j, 0, input.size2())
+                    FOR(j, 0, input.size2())
                     {
-                        input(i, j) = exp(input(i, j) - max) / sum;
+                        input(i,j) = exp(input(i,j))/sum;
                     }
                 }
-                // cout<<input<<'\n';
-                // exit(0);
             }
             // sigmoid
             else if (activation_func_type == 's')
