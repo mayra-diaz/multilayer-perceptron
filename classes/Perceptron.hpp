@@ -17,10 +17,10 @@ class Perceptron{
 
         mat activation_function(mat input, bool last)
         {
+
             // softmax
             if (last)
             {
-                // cout<<input<<'\n';
                 // FOR (i, 0, input.size1())
                 // {
                 //     double max = -1, sum = 1;
@@ -34,18 +34,50 @@ class Perceptron{
                 //         input(i, j) = exp(input(i, j) - max) / sum;
                 //     }
                 // }
-                double sum = 0;
+
+
+                double sum, min, max;
+                
+                // cout<<input.size1()<<'\n';
                 FOR(i, 0, input.size1())
-                {
+                {                
+                    sum = 0;
+                    min = 1000000000000000;
+                    max = -1;
+                    FOR(j,0, input.size2()){
+                        if(input(i,j) > max){
+                            max = input(i,j);
+                        }else if(input(i,j) < min){
+                            min = input(i,j);
+                        }
+                    }
+                    if(max != 0 && min != 0){
+                        // printf("min: %f, max %f\n", min, max);
+                        FOR(j,0,input.size2()){
+                            input(i,j) -= min;
+                            input(i,j) /= (max-min);
+                            // cout<<input(i,j)<<'\n';
+                        }
+                    }
+
                     FOR(j, 0, input.size2())
                     {
+                        // cout<<input(i,j)<<'\n';
                         sum += exp(input(i,j));
+                        // printf("e_%d: %f\n", j, exp(input(i,j)));
+                        // printf("sum: %f\n", sum);
                     }
                     FOR(j, 0, input.size2())
                     {
                         input(i,j) = exp(input(i,j))/sum;
+                        // cout<<input(i,j)<<'\n';
                     }
+                    // printf("sum: %Lf\n", sum);
+                    // cout<<input(i)<<'\n';
+                    // exit(0);
                 }
+                // cout<<input<<'\n';
+                // exit(0);
             }
             // sigmoid
             else if (activation_func_type == 's')
@@ -68,6 +100,11 @@ class Perceptron{
                         input(i, j) = max((double) 0, input(i, j));
                     }
                 }
+                // if(input.size1() == 83){
+                //     cout<<input<<'\n';
+                //     exit(0);
+                // }
+
             } 
             // tanh
             else if (activation_func_type == 't')
@@ -238,6 +275,7 @@ class Perceptron{
             auto res = forward(x_test);
             /* RESULTADO TODO -nan con tanh y relu, con sigmoid da resultados! */ 
             // cout << res << endl;
+            // exit(0);
             double arg_max;
             vec result_vec(res.size1());
             FOR(i, 0, res.size1())
