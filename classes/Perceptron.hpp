@@ -187,6 +187,8 @@ class Perceptron{
                 weights_prime.push_back(aux3);
                 deltas.push_back(aux3);
             }
+            // weights_prime.resize(n_layers-1);
+            // deltas.resize(n_layers-1);
 
             // DEBUG
             // FOR(i, 0, sz(weights))
@@ -231,6 +233,7 @@ class Perceptron{
             /* TODO: CONVERTIR y a matriz para poder restar */ 
             deltas.back() = layers_outputs.back();
             weights_prime.back() = trans(prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
+            // cout << "xd\n";
             ROF(i, sz(weights)-1, 0)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
