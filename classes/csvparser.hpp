@@ -20,6 +20,7 @@ struct DataFrame{
     // TODO: que la separación sea RANDOM
     void separation()
     {
+        srand(time(NULL));
         b_vec_int index(Y.size());
         FOR(i, 0, Y.size()) index(i) = i;
         random_shuffle(index.begin(), index.end());

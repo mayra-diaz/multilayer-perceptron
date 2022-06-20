@@ -187,19 +187,16 @@ class Perceptron{
             deltas[n_layers] = layers_outputs[n_layers];
             weights_prime[n_layers] = (prod(trans(deltas[n_layers]), layers_outputs[n_layers-1]));
 
-            ROF(i, n_layers-1, 0)
+            ROF(i, n_layers-1, 1)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
                                         activation_function_derivative(layers_outputs[i]));
-                if (i != 0)
-                {
-                    weights_prime[i] = prod(trans(deltas[i]), layers_outputs[i-1]);
-                }
-                else
-                {
-                    weights_prime[i] = prod(trans(deltas[i]), input);
-                }
+                weights_prime[i] = prod(trans(deltas[i]), layers_outputs[i-1]);
             }
+            deltas[0] = element_prod(prod(deltas[1], trans(weights[1])), 
+                                    activation_function_derivative(layers_outputs[0]));
+            weights_prime[0] = prod(trans(deltas[0]), input);
+
             FOR(i, 0, n_layers+1)
             {
                 weights[i] = weights[i]-trans(weights_prime[i])*alpha;
