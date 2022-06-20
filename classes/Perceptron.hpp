@@ -17,67 +17,23 @@ class Perceptron{
 
         mat activation_function(mat input, bool last)
         {
-
             // softmax
             if (last)
             {
-                // FOR (i, 0, input.size1())
-                // {
-                //     double max = -1, sum = 1;
-                //     FOR (j, 0, input.size2())
-                //     {
-                //         if (input(i, j) > max) max = input(i, j);
-                //         sum += input(i, j);
-                //     }
-                //     FOR (j, 0, input.size2())
-                //     {
-                //         input(i, j) = exp(input(i, j) - max) / sum;
-                //     }
-                // }
-
-
-                double sum, min, max;
-                
-                // cout<<input.size1()<<'\n';
-                FOR(i, 0, input.size1())
-                {                
-                    sum = 0;
-                    min = 1000000000000000;
-                    max = -1;
-                    FOR(j,0, input.size2()){
-                        if(input(i,j) > max){
-                            max = input(i,j);
-                        }else if(input(i,j) < min){
-                            min = input(i,j);
-                        }
-                    }
-                    if(max != 0 && min != 0){
-                        // printf("min: %f, max %f\n", min, max);
-                        FOR(j,0,input.size2()){
-                            input(i,j) -= min;
-                            input(i,j) /= (max-min);
-                            // cout<<input(i,j)<<'\n';
-                        }
-                    }
-
-                    FOR(j, 0, input.size2())
+                // cout << "softmax\n";
+                FOR (i, 0, input.size1())
+                {
+                    double max = -1, sum = 1;
+                    FOR (j, 0, input.size2())
                     {
-                        // cout<<input(i,j)<<'\n';
-                        sum += exp(input(i,j));
-                        // printf("e_%d: %f\n", j, exp(input(i,j)));
-                        // printf("sum: %f\n", sum);
+                        if (input(i, j) > max) max = input(i, j);
+                        sum += input(i, j);
                     }
-                    FOR(j, 0, input.size2())
+                    FOR (j, 0, input.size2())
                     {
-                        input(i,j) = exp(input(i,j))/sum;
-                        // cout<<input(i,j)<<'\n';
+                        input(i, j) = exp(input(i, j) - max) / sum;
                     }
-                    // printf("sum: %Lf\n", sum);
-                    // cout<<input(i)<<'\n';
-                    // exit(0);
                 }
-                // cout<<input<<'\n';
-                // exit(0);
             }
             // sigmoid
             else if (activation_func_type == 's')
@@ -100,11 +56,6 @@ class Perceptron{
                         input(i, j) = max((double) 0, input(i, j));
                     }
                 }
-                // if(input.size1() == 83){
-                //     cout<<input<<'\n';
-                //     exit(0);
-                // }
-
             } 
             // tanh
             else if (activation_func_type == 't')
@@ -115,7 +66,7 @@ class Perceptron{
                     {
                         input(i, j) = (exp(input(i, j)) - exp(-input(i, j)))/(exp(input(i, j)) + exp(-input(i, j)));   
                     }                    
-                }  
+                }
             }
             return input;
         };
@@ -165,95 +116,104 @@ class Perceptron{
         vec derivates(int j);
 
     public:
-        Perceptron(int_vector nodes, char _activation_func)
+        Perceptron(int in_dim, int_vector nodes, int out_dim, char _activation_func)
         {
             this->n_layers = nodes.size();
             this->activation_func_type = _activation_func;
-            
-            FOR(i, 0, n_layers-1)
+            deltas.resize(n_layers+1);
+            weights_prime.resize(n_layers+1);
+            layers_outputs.resize(n_layers+1);
+            weights.resize(n_layers+1);
+            biases.resize(n_layers+1);
+
+            // input layer
+            biases[0] = (zero_vector<double>(nodes[0]));
+            weights[0] = mat(in_dim, nodes[0]);
+            FOR(j, 0, in_dim)
             {
-                zero_vector<double> aux(nodes[i]);
-                biases.push_back(aux);
-                mat aux2(nodes[i], nodes[i+1]);
-                FOR(j, 0, nodes[i])
+                FOR(k, 0, nodes[0])
                 {
-                    FOR(k, 0, nodes[i+1])
-                    {
-                        aux2(j, k) = ((double)rand()/RAND_MAX);
-                    }
+                    weights[0](j, k) = ((double)rand()/RAND_MAX);
                 }
-                weights.push_back(aux2);
-                zero_matrix<double> aux3(nodes[i], nodes[i+1]);
-                weights_prime.push_back(aux3);
-                deltas.push_back(aux3);
             }
 
-            // DEBUG
-            // FOR(i, 0, sz(weights))
-            // {
-            //     FOR(j, 0, nodes[i])
-            //     {
-            //         FOR(k, 0, nodes[i+1])
-            //         {
-            //             cout << weights[i](j, k) << " ";
-            //         }
-            //         cout << endl;
-            //     }
-            //     cout << endl;
-            // }
-            // cout << weights.size() << " " << biases.size() << endl;
+            // hidden layers
+            FOR(i, 1, n_layers)
+            {
+                biases[i] = (zero_vector<double>(nodes[i]));
+                weights[i] = mat(nodes[i-1], nodes[i]);
+                FOR(j, 0, nodes[i-1])
+                {
+                    FOR(k, 0, nodes[i])
+                    {
+                        weights[i](j, k) = ((double)rand()/RAND_MAX);
+                    }
+                }
+            }
+
+            // output layer
+            biases[n_layers] = (zero_vector<double>(out_dim));
+            weights[n_layers] = mat(nodes[n_layers-1], out_dim);
+            FOR(j, 0, nodes[n_layers-1])
+            {
+                FOR(k, 0, out_dim)
+                {
+                    weights[n_layers](j, k) = ((double)rand()/RAND_MAX);
+                }
+            }
+            // cout << "finish\n";
         }
 
         mat forward(mat input)
         {
-            FOR(i, 0, sz(weights))
+            FOR(i, 0, n_layers+1)
             {
-                // cout << input.size1() << "x" << input.size2() << " " << weights[i].size1() << "x" << weights[i].size2() << endl;
                 input = prod(input, weights[i]);
-                // cout << input.size2() << " " << biases[i].size() << endl;
-                /* TODO: DA ERROR AL SUMAR EL BIAS, CORREGIR */ 
-                // FOR(j, 0, input.size1())
-                // {
-                //     FOR(k, 0, input.size2())
-                //     {
-                //         input(j, k) = input(j, k) + biases[i](j);
-                //     }
-                // }
-                input = activation_function(input, i == sz(weights)-1);
-                layers_outputs.push_back(input);
+                FOR(j, 0, input.size1())
+                {
+                    FOR(k, 0, input.size2())
+                    {
+                        input(j, k) = input(j, k) + biases[i](k);
+                    }
+                }
+                input = activation_function(input, i == n_layers);
+                layers_outputs[i] = (input);
             }
             return input;
         }
 
         mat backward(mat input, b_vec_int y, double alpha)
         {
-            // deltas.back() = layers_outputs.back() - y;
-            /* TODO: CONVERTIR y a matriz para poder restar */ 
-            deltas.back() = layers_outputs.back();
-            weights_prime.back() = trans(prod(trans(deltas.back()), layers_outputs[sz(layers_outputs)-2]));
-            ROF(i, sz(weights)-1, 0)
+            deltas[n_layers] = layers_outputs[n_layers];
+            weights_prime[n_layers] = (prod(trans(deltas[n_layers]), layers_outputs[n_layers-1]));
+
+            ROF(i, n_layers-1, 0)
             {
                 deltas[i] = element_prod(prod(deltas[i+1], trans(weights[i+1])), 
-                                         activation_function_derivative(layers_outputs[i]));
-                weights_prime[i] = prod(trans(deltas[i]), input);
+                                        activation_function_derivative(layers_outputs[i]));
+                if (i != 0)
+                {
+                    weights_prime[i] = prod(trans(deltas[i]), layers_outputs[i-1]);
+                }
+                else
+                {
+                    weights_prime[i] = prod(trans(deltas[i]), input);
+                }
             }
-            FOR(i, 0, sz(weights))
+            FOR(i, 0, n_layers+1)
             {
-                // cout << weights[i].size1() << "x" << weights[i].size2() <<
-                //         " " << weights_prime[i].size1() << "x" << weights_prime[i].size2() << endl;
-                weights[i] = weights[i]-(weights_prime[i])*alpha;
-                /* TODO: FIXEAR ERROR CON DIMENSIONES */ 
-                // vec aux(deltas[i].size2());
-                // FOR(j, 0, deltas[i].size2())
-                // {
-                //     double sum = 0;
-                //     FOR(k, 0, deltas[i].size1())
-                //     {
-                //         sum += deltas[i](k, j);
-                //     }   
-                //     aux(j) = sum;
-                // }
-                // biases[i] = biases[i]-aux*alpha;
+                weights[i] = weights[i]-trans(weights_prime[i])*alpha;
+                vec aux(deltas[i].size2());
+                FOR(j, 0, deltas[i].size2())
+                {
+                    double sum = 0;
+                    FOR(k, 0, deltas[i].size1())
+                    {
+                        sum += deltas[i](k, j);
+                    }   
+                    aux(j) = sum;
+                }
+                biases[i] = biases[i]-aux*alpha;
             }
             return input;
         }
@@ -264,8 +224,10 @@ class Perceptron{
             {
                 if(epoch%10 == 0)
                     cout << epoch << endl;
-                forward(x_train);
                 forward(x_val);
+                // cout << "----------------\n";
+                forward(x_train);
+                // cout << "----------------\n";
                 backward(x_train, y_train, alpha);
             }
         }
@@ -273,9 +235,6 @@ class Perceptron{
         void test(mat x_test, b_vec_int y_test)
         {
             auto res = forward(x_test);
-            /* RESULTADO TODO -nan con tanh y relu, con sigmoid da resultados! */ 
-            // cout << res << endl;
-            // exit(0);
             double arg_max;
             vec result_vec(res.size1());
             FOR(i, 0, res.size1())

@@ -20,7 +20,7 @@ using namespace std;
 # define b_vec_int boost::numeric::ublas::vector<int>
 # define db double
 #define FOR(i,a,b) for (int (i) = (a); (i) < (b); ++(i))
-#define ROF(i,a,b) for (int (i) = (b)-1; (i) >= (a); --(i))
+#define ROF(i,a,b) for (int (i) = (a); (i) >= (b); --(i))
 #define sz(x) int((x).size())
 // using std::vector<int> = int_vector;
 // using boost::numeric::ublas::matrix<double> = mat;
